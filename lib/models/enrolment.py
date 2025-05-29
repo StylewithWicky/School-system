@@ -1,5 +1,5 @@
 import sqlite3
-
+from lib.helpers import DBHelper
 DB_NAME = "school.db"
 class Enrollment:
     def __init__(self, student_id, class_id, id=None):
@@ -8,27 +8,28 @@ class Enrollment:
         self.class_id = class_id
 
     def save(self):
+        if self.id is None:
+            DBHelper.execute(
+                'INSERT INTO enrollments (student_id, class_id) VALUES (?, ?)',
+                (self.student_id, self.class_id)
+            )
+            last_id = DBHelper.execute('SELECT last_insert_rowid()', fetch=True)[0][0]
+            self.id = last_id
+            print(f"[Enrollment.save] New enrollment saved with id {self.id}")
+        else:
+            DBHelper.execute(
+                'UPDATE enrollments SET student_id=?, class_id=? WHERE id=?',
+                (self.student_id, self.class_id, self.id)
+            )
+            print(f"[Enrollment.save] Enrollment updated with id {self.id}")
+
+    @staticmethod
+    def enroll(student, class_):
         conn = sqlite3.connect(DB_NAME)
         cursor = conn.cursor()
-        if self.id is None:
-            cursor.execute('INSERT INTO enrollments (student_id, class_id) VALUES (?, ?)', (self.student_id, self.class_id))
-            self.id = cursor.lastrowid
-        else:
-            cursor.execute('UPDATE enrollments SET student_id=?, class_id=? WHERE id=?', (self.student_id, self.class_id, self.id))
+        print(f"Enroll called with student.id={student.id}, class_.id={class_.id}")
+        cursor.execute('''
+            INSERT INTO enrollments (student_id, class_id) VALUES (?, ?)
+        ''', (student.id, class_.id))
         conn.commit()
         conn.close()
-
-    @classmethod
-    def enroll(cls, student, class_):
-        enrollment = cls(student.id, class_.id)
-        enrollment.save()
-        return enrollment
-
-    @classmethod
-    def find_all(cls):
-        conn = sqlite3.connect(DB_NAME)
-        cursor = conn.cursor()
-        cursor.execute('SELECT id, student_id, class_id FROM enrollments')
-        rows = cursor.fetchall()
-        conn.close()
-        return [cls(row[1], row[2], id=row[0]) for row in rows]

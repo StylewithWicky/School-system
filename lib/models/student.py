@@ -1,5 +1,8 @@
 import sqlite3
-from Class import Class
+from lib.helpers import DBHelper
+
+
+
 DB_NAME = "school.db"
 
 class Student:
@@ -8,6 +11,32 @@ class Student:
         self.first_name = first_name
         self.last_name = last_name
         self.email = email
+
+    def enroll(self, class_id):
+        from lib.models.SchoolClass import SchoolClass  # Local import to avoid circular import
+        from lib.models.enrolment import Enrollment  # Import Enrollment class
+
+        cls = SchoolClass.find_by_id(class_id)
+        if cls is None:
+            raise ValueError(f"Class with id {class_id} does not exist")
+
+        Enrollment.enroll(self, cls)
+
+    def get_classes(self):
+     from lib.models.SchoolClass import SchoolClass  # <- moved here to avoid circular import
+
+     conn = sqlite3.connect(DB_NAME)
+     cursor = conn.cursor()
+     cursor.execute('''
+        SELECT classes.id, classes.name, classes.teacher_id
+        FROM classes
+        JOIN enrollments ON classes.id = enrollments.class_id
+        WHERE enrollments.student_id = ?
+    ''', (self.id,))
+     rows = cursor.fetchall()
+     conn.close()
+
+     return [SchoolClass(name=row[1], teacher_id=row[2], id=row[0]) for row in rows]
 
     @property
     def first_name(self):
@@ -52,31 +81,11 @@ class Student:
         self._email = value.strip()
 
     def save(self):
-        conn = sqlite3.connect(DB_NAME)
-        cursor = conn.cursor()
-        if self.id is None:
-            cursor.execute(
-                'INSERT INTO students (first_name, last_name, email) VALUES (?, ?, ?)',
-                (self.first_name, self.last_name, self.email)
-            )
-            self.id = cursor.lastrowid
-        else:
-            cursor.execute(
-                'UPDATE students SET first_name=?, last_name=?, email=? WHERE id=?',
-                (self.first_name, self.last_name, self.email, self.id)
-            )
-        conn.commit()
-        conn.close()
-
-    def get_classes(self):
-        conn = sqlite3.connect(DB_NAME)
-        cursor = conn.cursor()
-        cursor.execute('''
-            SELECT c.id, c.name, c.teacher_id
-            FROM classes c
-            JOIN enrollments e ON c.id = e.class_id
-            WHERE e.student_id = ?
-        ''', (self.id,))
-        rows = cursor.fetchall()
-        conn.close()
-        return [Class(row[1], row[2], id=row[0]) for row in rows]
+     conn = sqlite3.connect(DB_NAME)
+     cursor = conn.cursor()
+     cursor.execute('''
+        INSERT INTO students (first_name, last_name, email) VALUES (?, ?, ?)
+    ''', (self.first_name, self.last_name, self.email))
+     self.id = cursor.lastrowid  # ✅ Important line
+     conn.commit()
+     conn.close()

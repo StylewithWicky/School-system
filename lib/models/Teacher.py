@@ -1,6 +1,6 @@
 import sqlite3
-from Class import Class
-
+from .SchoolClass import SchoolClass
+from lib.helpers import DBHelper
 DB_NAME = "school.db"
 
 class Teacher:
@@ -53,26 +53,31 @@ class Teacher:
         self._email = value.strip()
 
     def save(self):
-        conn = sqlite3.connect(DB_NAME)
-        cursor = conn.cursor()
         if self.id is None:
-            cursor.execute(
+            DBHelper.execute(
                 'INSERT INTO teachers (first_name, last_name, email) VALUES (?, ?, ?)',
                 (self.first_name, self.last_name, self.email)
             )
-            self.id = cursor.lastrowid
+            last_id = DBHelper.execute('SELECT last_insert_rowid()', fetch=True)[0][0]
+            self.id = last_id
         else:
-            cursor.execute(
+            DBHelper.execute(
                 'UPDATE teachers SET first_name=?, last_name=?, email=? WHERE id=?',
                 (self.first_name, self.last_name, self.email, self.id)
             )
-        conn.commit()
-        conn.close()
 
     def get_classes(self):
-        conn = sqlite3.connect(DB_NAME)
-        cursor = conn.cursor()
-        cursor.execute('SELECT id, name, teacher_id FROM classes WHERE teacher_id = ?', (self.id,))
-        rows = cursor.fetchall()
-        conn.close()
-        return [Class(row[1], row[2], id=row[0]) for row in rows]
+     from lib.models.SchoolClass import SchoolClass  # Local import avoids circular issues
+
+     conn = sqlite3.connect(DB_NAME)
+     cursor = conn.cursor()
+     cursor.execute('''
+        SELECT classes.id, classes.name, classes.teacher_id
+        FROM classes
+        JOIN enrollments ON classes.id = enrollments.class_id
+        WHERE enrollments.student_id = ?
+    ''', (self.id,))
+     rows = cursor.fetchall()
+     conn.close()
+
+     return [SchoolClass(name=row[1], teacher_id=row[2], id=row[0]) for row in rows]
