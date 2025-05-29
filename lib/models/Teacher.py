@@ -17,11 +17,11 @@ class Teacher:
     @first_name.setter
     def first_name(self, value):
         if not isinstance(value, str):
-            raise TypeError("First name must be a string.")
+            raise TypeError("LAZMA IKUE A STRING.")
         if not value.strip():
-            raise ValueError("First name cannot be empty.")
+            raise ValueError("HAIFAI KUKUA EMPTY.")
         if len(value.strip()) < 2:
-            raise ValueError("First name must be at least 2 characters long.")
+            raise ValueError(" 2 characters long OR MORE.")
         self._first_name = value.strip().capitalize()
 
     @property
@@ -31,11 +31,11 @@ class Teacher:
     @last_name.setter
     def last_name(self, value):
         if not isinstance(value, str):
-            raise TypeError("Last name must be a string.")
+            raise TypeError("LAZMA IKUE A STRING.")
         if not value.strip():
-            raise ValueError("Last name cannot be empty.")
+            raise ValueError("HAIFAI KUKUA EMPTY.")
         if len(value.strip()) < 2:
-            raise ValueError("Last name must be at least 2 characters long.")
+            raise ValueError("2 characters long OR MORE.")
         self._last_name = value.strip().capitalize()
 
     @property
@@ -45,11 +45,11 @@ class Teacher:
     @email.setter
     def email(self, value):
         if not isinstance(value, str):
-            raise TypeError("Email must be a string.")
+            raise TypeError("LAZMA IKUE A STRING.")
         if not value.strip():
-            raise ValueError("Email cannot be empty.")
+            raise ValueError("HAIFAI KUKUA EMPTY.")
         if len(value.strip()) < 5:
-            raise ValueError("Email must be at least 5 characters long.")  # simple email length check
+            raise ValueError("2 characters long OR MORE.") 
         self._email = value.strip()
 
     def save(self):
@@ -67,8 +67,8 @@ class Teacher:
             )
 
     def get_classes(self):
-     from lib.models.SchoolClass import SchoolClass  # Local import avoids circular issues
-
+     from lib.models.SchoolClass import SchoolClass 
+     
      conn = sqlite3.connect(DB_NAME)
      cursor = conn.cursor()
      cursor.execute('''

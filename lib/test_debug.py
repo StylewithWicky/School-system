@@ -2,7 +2,7 @@
 import sys
 import os
 import sqlite3
-import pytest  # <-- Add this
+import pytest  
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
@@ -53,35 +53,35 @@ def setup_database():
     conn.commit()
     conn.close()
 
-@pytest.fixture  # <-- Decorate this so pytest registers it as a fixture
+@pytest.fixture  
 def setup_data():
     setup_database()
 
-    teacher = Teacher("Jane", "Doe", "janedoe@example.com")
+    teacher = Teacher("Alex", "Muturi", "alexmuturi@gmail.com")
     teacher.save()
 
-    student = Student("Bob", "Brown", "bob@example.com")
+    student = Student("Nomssa", "Nachocha", "Nomssanachocha@gmail.com")
     student.save()
 
-    cls = SchoolClass("Science", teacher_id=teacher.id)
+    cls = SchoolClass("Math", teacher_id=teacher.id)
     cls.save()
 
     return teacher, student, cls
 
 def test_teacher_creation(setup_data):
     teacher, _, _ = setup_data
-    assert teacher.first_name == "Jane"
-    assert teacher.last_name == "Doe"
+    assert teacher.first_name == "Alex"
+    assert teacher.last_name == "Muturi"
     assert "@" in teacher.email
 
 def test_student_enrollment(setup_data):
     _, student, cls = setup_data
     Enrollment.enroll(student, cls)
     student_classes = student.get_classes()
-    assert any(c.name == "Science" for c in student_classes)
+    assert any(c.name == "Math" for c in student_classes)
 
 def test_class_students(setup_data):
     _, student, cls = setup_data
     Enrollment.enroll(student, cls)
     students = cls.get_students()
-    assert any(s.email == "bob@example.com" for s in students)
+    assert any(s.email == "Nomssanachocha@gmail.com" for s in students)
