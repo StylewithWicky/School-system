@@ -18,11 +18,11 @@ class SchoolClass:
     @name.setter
     def name(self, value):
         if not isinstance(value, str):
-            raise TypeError("Class name must be a string.")
+            raise TypeError("HAS TO BE A STRING !.")
         if not value.strip():
-            raise ValueError("Class name cannot be empty.")
+            raise ValueError("CAN;T BE EMPTY.")
         if len(value.strip()) < 2:
-            raise ValueError("Class name must be at least 2 characters long.")
+            raise ValueError("LAZMA IKUE IMEPITA 2 BRO")
         self._name = value.strip().capitalize()
 
     @property
@@ -32,7 +32,7 @@ class SchoolClass:
     @teacher_id.setter
     def teacher_id(self, value):
         if not (isinstance(value, int) or value is None):
-            raise TypeError("Teacher ID must be an integer or None.")
+            raise TypeError("LAZMA IKUE AN INTERGER.")
         self._teacher_id = value
 
     def save(self):
@@ -41,14 +41,14 @@ class SchoolClass:
      cursor.execute('''
         INSERT INTO classes (name, teacher_id) VALUES (?, ?)
     ''', (self.name, self.teacher_id))
-     self.id = cursor.lastrowid  # ✅ Must assign it!
+     self.id = cursor.lastrowid  
      print(f"[Class.save] New class saved with id {self.id}")
      conn.commit()
      conn.close()
 
 
     def get_students(self):
-     from lib.models.student import Student  # <- moved here to break circular import
+     from lib.models.student import Student  
 
      conn = sqlite3.connect(DB_NAME)
      cursor = conn.cursor()

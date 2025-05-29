@@ -13,17 +13,17 @@ class Student:
         self.email = email
 
     def enroll(self, class_id):
-        from lib.models.SchoolClass import SchoolClass  # Local import to avoid circular import
-        from lib.models.enrolment import Enrollment  # Import Enrollment class
+        from lib.models.SchoolClass import SchoolClass  
+        from lib.models.enrolment import Enrollment  
 
         cls = SchoolClass.find_by_id(class_id)
         if cls is None:
-            raise ValueError(f"Class with id {class_id} does not exist")
+            raise ValueError(f" IZA BRO ID YAKO {class_id} does not exist")
 
         Enrollment.enroll(self, cls)
 
     def get_classes(self):
-     from lib.models.SchoolClass import SchoolClass  # <- moved here to avoid circular import
+     from lib.models.SchoolClass import SchoolClass 
 
      conn = sqlite3.connect(DB_NAME)
      cursor = conn.cursor()
@@ -45,11 +45,11 @@ class Student:
     @first_name.setter
     def first_name(self, value):
         if not isinstance(value, str):
-            raise TypeError("First name must be a string.")
+            raise TypeError("LAZMA IKUE A STRING.")
         if not value.strip():
-            raise ValueError("First name cannot be empty.")
+            raise ValueError(" HAIWEZI KUA EMPTY.")
         if len(value.strip()) < 2:
-            raise ValueError("First name must be at least 2 characters long.")
+            raise ValueError("2 CHARACTERS OR MORE")
         self._first_name = value.strip().capitalize()
 
     @property
@@ -59,7 +59,7 @@ class Student:
     @last_name.setter
     def last_name(self, value):
         if not isinstance(value, str):
-            raise TypeError("Last name must be a string.")
+            raise TypeError("LAZMA IKUE A STRING")
         if not value.strip():
             raise ValueError("Last name cannot be empty.")
         if len(value.strip()) < 2:
@@ -73,11 +73,11 @@ class Student:
     @email.setter
     def email(self, value):
         if not isinstance(value, str):
-            raise TypeError("Email must be a string.")
+            raise TypeError("STRING.")
         if not value.strip():
-            raise ValueError("Email cannot be empty.")
+            raise ValueError("NOT EMPTY.")
         if len(value.strip()) < 5 or '@' not in value:
-            raise ValueError("Invalid email address.")
+            raise ValueError("WRONG EMAIL SYNTAX.")
         self._email = value.strip()
 
     def save(self):
@@ -86,6 +86,6 @@ class Student:
      cursor.execute('''
         INSERT INTO students (first_name, last_name, email) VALUES (?, ?, ?)
     ''', (self.first_name, self.last_name, self.email))
-     self.id = cursor.lastrowid  # ✅ Important line
+     self.id = cursor.lastrowid 
      conn.commit()
      conn.close()
